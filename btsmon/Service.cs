@@ -7,11 +7,11 @@ namespace btsmon
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        private readonly TestService s;
+        private readonly BizTalkMonitorService s;
         public Service()
         {
             InitializeComponent();
-            s = new TestService();
+            s = new BizTalkMonitorService();
         }
 
         protected override void OnStart(string[] args)
