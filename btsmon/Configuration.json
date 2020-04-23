@@ -1,0 +1,10 @@
+{
+	"Environments": [
+		{
+			"GroupServer": "SOMESERVER",
+			"GroupInstance": "SOMEINSTANCE",
+			"HostInstances": [ { "Name" : "BizTalkServerHostInstance" } ],
+			"Servers": [ { "Name" : "." } ]
+		}
+	]
+}

@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Linq.Expressions;
 using System.Threading;
+using btsmon.Model;
 using NLog;
 
 namespace btsmon
@@ -31,19 +34,31 @@ namespace btsmon
         {
             var i = AppSettings.StartFrom;
 
-            while (true)
+            Boolean configNoLoady = false;
+            Boolean continueWork = true;
+
+            while (continueWork)
             {
                 // the ping code is just for fun until we get things going
                 Logger.Debug("Ping " + i);
                 i++;
                 Thread.Sleep(5000);
 
-                // 2020-04-21 13:02 this works
-                BizTalkApi.ListAndStartHostInstances();
+                Configuration config = Configuration.LoadLocalFile("Configuration.json");
 
-                //TODO: have fun Rob
-                // im enjoying not having to use the windows event log (which is SLOW) and text logs are nice
-                // 
+                if (config == null && !configNoLoady)
+                {
+                    Logger.Error("Could not parse configuration file.");
+                    configNoLoady = true;
+                }
+                else if (config != null)
+                {
+                    configNoLoady = false;
+                    Logger.Debug("Configuration file parsed OK. Continuing to health check biztalk services");
+
+                    // 2020-04-21 13:02 this works
+                    BizTalkApi.ListAndStartHostInstances(config);
+                }
             }
         }
     }
