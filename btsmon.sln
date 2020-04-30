@@ -10,6 +10,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "libs", "libs", "{0706E25C-F5E8-4A5D-9C1C-36DEAA7F1AB7}"
+	ProjectSection(SolutionItems) = preProject
+		libs\Microsoft.BizTalk.ExplorerOM.dll = libs\Microsoft.BizTalk.ExplorerOM.dll
+		libs\README.txt = libs\README.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +29,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0706E25C-F5E8-4A5D-9C1C-36DEAA7F1AB7} = {34C858A2-2D9A-4F68-8043-2568778BBDA8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C628439-F50A-4BB3-802A-23B084BA771B}

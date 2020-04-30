@@ -1,10 +1,11 @@
 {
 	"Environments": [
-		{
-			"GroupServer": "SOMESERVER",
-			"GroupInstance": "SOMEINSTANCE",
-			"HostInstances": [ { "Name" : "BizTalkServerHostInstance" } ],
-			"Servers": [ { "Name" : "." } ]
-		}
+    {
+      "GroupServer": "BIZTALKBOX",
+      "GroupInstance": "",
+      "MgmtDatabase": "BizTalkMgmtDb",
+      "HostInstances": [ { "Name": "BizTalkServerApplication" } ],
+      "Servers": [ { "Name": "hsofj234saleddq4gfvu0qk45g.bx.internal.cloudapp.net" } ]
+    }
 	]
 }

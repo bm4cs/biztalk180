@@ -13,6 +13,7 @@ namespace btsmon
     public class BizTalkMonitorService
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly BizTalkApi BizTalkApi = new BizTalkApi();
 
         private readonly Thread _thread;
         public BizTalkMonitorService()
@@ -56,8 +57,8 @@ namespace btsmon
                     configNoLoady = false;
                     Logger.Debug("Configuration file parsed OK. Continuing to health check biztalk services");
 
-                    // 2020-04-21 13:02 this works
-                    BizTalkApi.ListAndStartHostInstances(config);
+                    BizTalkApi.SetConfiguration(config);
+                    BizTalkApi.ListAndStartHostInstances();
                 }
             }
         }

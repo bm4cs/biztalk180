@@ -12,6 +12,8 @@ namespace btsmon.Model
         [DataMember]
         public String GroupInstance { get; set; }
         [DataMember]
+        public String MgmtDatabase { get; set; }
+        [DataMember]
         public HostInstance[] HostInstances { get; set; }
         [DataMember]
         public Server[] Servers { get; set; }
