@@ -5,7 +5,19 @@
       "GroupInstance": "",
       "MgmtDatabase": "BizTalkMgmtDb",
       "HostInstances": [ { "Name": "BizTalkServerApplication" } ],
-      "Servers": [ { "Name": "hsofj234saleddq4gfvu0qk45g.bx.internal.cloudapp.net" } ]
+      "Servers": [ { "Name": "hsofj234saleddq4gfvu0qk45g.bx.internal.cloudapp.net" } ],
+      "ReceiveLocations": [
+        {
+          "Name": "BensTestReceiveLocationThatShouldBeStopped",
+          "ExpectedState": "Down"
+        }
+      ],
+      "SendPorts": [
+        {
+          "Name": "BensTestSendPortThatShouldBeStopped",
+          "ExpectedState": "Down"
+        }
+      ]
     }
 	]
 }

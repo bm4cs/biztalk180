@@ -103,7 +103,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppSettings.cs" />
-    <Compile Include="BizTalkApi.cs" />
+    <Compile Include="Command\Group\OrchestrationsCheck.cs" />
+    <Compile Include="Command\Group\ReceiveLocationsCheck.cs" />
+    <Compile Include="Command\Group\SendPortGroupsCheck.cs" />
+    <Compile Include="Command\Group\SendPortsCheck.cs" />
+    <Compile Include="Command\Machine\HostInstancesCheck.cs" />
+    <Compile Include="Command\Machine\WebServerProcessesCheck.cs" />
+    <Compile Include="Command\ICommand.cs" />
+    <Compile Include="Controller\GroupController.cs" />
+    <Compile Include="Controller\MachineController.cs" />
+    <Compile Include="Model\ArtifactType.cs" />
+    <Compile Include="Model\BtsMonReceiveLocation.cs" />
+    <Compile Include="Model\Remediation.cs" />
+    <Compile Include="Model\BtsMonSendPort.cs" />
     <Compile Include="Service\Installer.cs">
       <SubType>Component</SubType>
     </Compile>

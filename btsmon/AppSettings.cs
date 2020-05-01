@@ -32,6 +32,8 @@ namespace btsmon
 
         public static int StartFrom { get; set; }
 
+        public static int PollingIntervalSeconds { get; set; }
+
         #endregion
     }
 }

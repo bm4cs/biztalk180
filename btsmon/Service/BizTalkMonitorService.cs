@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Threading;
+using btsmon.Controller;
 using btsmon.Model;
 using NLog;
 
@@ -13,7 +14,6 @@ namespace btsmon
     public class BizTalkMonitorService
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        private static readonly BizTalkApi BizTalkApi = new BizTalkApi();
 
         private readonly Thread _thread;
         public BizTalkMonitorService()
@@ -34,16 +34,15 @@ namespace btsmon
         private void DoWork()
         {
             var i = AppSettings.StartFrom;
+            var pollingInterval = AppSettings.PollingIntervalSeconds * 1000;
 
             Boolean configNoLoady = false;
             Boolean continueWork = true;
 
             while (continueWork)
             {
-                // the ping code is just for fun until we get things going
-                Logger.Debug("Ping " + i);
-                i++;
-                Thread.Sleep(5000);
+                Logger.Debug("Ping " + i++);
+                Thread.Sleep(pollingInterval);
 
                 Configuration config = Configuration.LoadLocalFile("Configuration.json");
 
@@ -57,8 +56,16 @@ namespace btsmon
                     configNoLoady = false;
                     Logger.Debug("Configuration file parsed OK. Continuing to health check biztalk services");
 
-                    BizTalkApi.SetConfiguration(config);
-                    BizTalkApi.ListAndStartHostInstances();
+
+                    foreach (var environment in config.Environments)
+                    {
+                        var machineController = new MachineController(environment);
+                        machineController.Execute();
+
+
+                    }
+
+                    
                 }
             }
         }
