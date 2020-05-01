@@ -57,7 +57,8 @@ namespace btsmon.Command.Group
                                 Type = ArtifactType.ReceiveLocation,
                                 ExpectedState = "Up",
                                 ActualState = "Down",
-                                RepairedTime = DateTime.Now
+                                RepairedTime = DateTime.Now,
+                                Success = true
                             });
                         }
                         catch (Exception receiveLocationStartException)
@@ -65,6 +66,16 @@ namespace btsmon.Command.Group
                             _btsCatalogExplorer.DiscardChanges();
                             Logger.Error($"Failed to start receive location {receiveLocation.Name}");
                             Logger.Error(receiveLocationStartException);
+
+                            remediationList.Add(new Remediation
+                            {
+                                Name = receiveLocation.Name,
+                                Type = ArtifactType.ReceiveLocation,
+                                ExpectedState = "Up",
+                                ActualState = "Down",
+                                RepairedTime = DateTime.Now,
+                                Success = false
+                            });
                         }
                     }
                     else if (receiveLocationMonitoringConfig.ExpectedState == "Down" &&
@@ -81,7 +92,8 @@ namespace btsmon.Command.Group
                                 Type = ArtifactType.ReceiveLocation,
                                 ExpectedState = "Down",
                                 ActualState = "Up",
-                                RepairedTime = DateTime.Now
+                                RepairedTime = DateTime.Now,
+                                Success = true
                             });
                         }
                         catch (Exception receiveLocationStopException)
@@ -89,6 +101,16 @@ namespace btsmon.Command.Group
                             _btsCatalogExplorer.DiscardChanges();
                             Logger.Error($"Failed to stop receive location {receiveLocation.Name}");
                             Logger.Error(receiveLocationStopException);
+
+                            remediationList.Add(new Remediation
+                            {
+                                Name = receiveLocation.Name,
+                                Type = ArtifactType.ReceiveLocation,
+                                ExpectedState = "Down",
+                                ActualState = "Up",
+                                RepairedTime = DateTime.Now,
+                                Success = false
+                            });
                         }
                     }
                 }

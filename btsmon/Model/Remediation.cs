@@ -16,5 +16,7 @@ namespace btsmon.Model
         public ArtifactType Type { get; set; }
 
         public DateTime RepairedTime { get; set; }
+
+        public bool Success { get; set; }
     }
 }

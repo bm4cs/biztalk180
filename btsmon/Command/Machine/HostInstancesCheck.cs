@@ -61,13 +61,24 @@ namespace btsmon.Command.Machine
                                     Type = ArtifactType.HostInstance,
                                     ExpectedState = "Up",
                                     ActualState = "Down",
-                                    RepairedTime = DateTime.Now
+                                    RepairedTime = DateTime.Now,
+                                    Success = true
                                 });
                             }
                             catch (Exception startHostInstanceException)
                             {
                                 Logger.Error($"Failed to start host instance {hostName}");
                                 Logger.Error(startHostInstanceException);
+
+                                remediationList.Add(new Remediation
+                                {
+                                    Name = hostName,
+                                    Type = ArtifactType.HostInstance,
+                                    ExpectedState = "Up",
+                                    ActualState = "Down",
+                                    RepairedTime = DateTime.Now,
+                                    Success = false
+                                });
                             }
                         }
                         else if (hi.ExpectedState == "Down" && serviceState == "4")
@@ -83,13 +94,24 @@ namespace btsmon.Command.Machine
                                     Type = ArtifactType.HostInstance,
                                     ExpectedState = "Down",
                                     ActualState = "Up",
-                                    RepairedTime = DateTime.Now
+                                    RepairedTime = DateTime.Now,
+                                    Success = true
                                 });
                             }
                             catch (Exception stopHostInstanceException)
                             {
                                 Logger.Error($"Failed to stop host instance {hostName}");
                                 Logger.Error(stopHostInstanceException);
+
+                                remediationList.Add(new Remediation
+                                {
+                                    Name = hostName,
+                                    Type = ArtifactType.HostInstance,
+                                    ExpectedState = "Down",
+                                    ActualState = "Up",
+                                    RepairedTime = DateTime.Now,
+                                    Success = false
+                                });
                             }
                         }
                     }

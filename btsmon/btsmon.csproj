@@ -116,6 +116,7 @@
     <Compile Include="Model\BtsMonReceiveLocation.cs" />
     <Compile Include="Model\Remediation.cs" />
     <Compile Include="Model\BtsMonSendPort.cs" />
+    <Compile Include="Notification\Emailer.cs" />
     <Compile Include="Service\Installer.cs">
       <SubType>Component</SubType>
     </Compile>

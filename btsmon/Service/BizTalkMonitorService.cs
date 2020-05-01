@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Threading;
 using btsmon.Controller;
 using btsmon.Model;
+using btsmon.Notification;
 using NLog;
 
 namespace btsmon
@@ -35,6 +37,7 @@ namespace btsmon
         {
             var i = AppSettings.StartFrom;
             var pollingInterval = AppSettings.PollingIntervalSeconds * 1000;
+            var remediationList = new List<Remediation>();
 
             Boolean configNoLoady = false;
             Boolean continueWork = true;
@@ -43,6 +46,11 @@ namespace btsmon
             {
                 Logger.Debug("Ping " + i++);
                 Thread.Sleep(pollingInterval);
+
+                if (remediationList.Count > 0)
+                {
+                    remediationList.Clear();
+                }
 
                 Configuration config = Configuration.LoadLocalFile("Configuration.json");
 
@@ -56,16 +64,21 @@ namespace btsmon
                     configNoLoady = false;
                     Logger.Debug("Configuration file parsed OK. Continuing to health check biztalk services");
 
-
                     foreach (var environment in config.Environments)
                     {
                         var machineController = new MachineController(environment);
-                        machineController.Execute();
+                        var machineRemediationList = machineController.Execute();
+                        remediationList.AddRange(machineRemediationList);
 
+                        var groupController = new GroupController(environment);
+                        var groupRemediationList = groupController.Execute();
+                        remediationList.AddRange(groupRemediationList);
 
+                        if (remediationList.Count > 0)
+                        {
+                            Emailer.Send(remediationList);
+                        }
                     }
-
-                    
                 }
             }
         }
