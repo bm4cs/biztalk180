@@ -8,27 +8,12 @@ using Environment = btsmon.Model.Environment;
 
 namespace btsmon.Command.Group
 {
-    public class SendPortsCheck : ICommand
+    public class SendPortsCheck : BaseGroupCheck, ICommand
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        private readonly BtsCatalogExplorer _btsCatalogExplorer;
-        private readonly Environment _environment;
 
-        public SendPortsCheck(Environment environment)
-        {
-            _environment = environment;
-
-            var connectionString =
-                $"Integrated Security=SSPI;database={environment.MgmtDatabase};server={environment.GroupServer}" +
-                (!string.IsNullOrEmpty(environment.GroupInstance) ? $"instance={environment.GroupInstance}" : "");
-
-            Logger.Debug($"SendPortsCheck connection string '{connectionString}'");
-
-            _btsCatalogExplorer = new BtsCatalogExplorer
-            {
-                ConnectionString = connectionString
-            };
-        }
+        public SendPortsCheck(Environment environment) : base(environment)
+        { }
 
         public List<Remediation> Execute()
         {
@@ -39,7 +24,7 @@ namespace btsmon.Command.Group
         {
             try
             {
-                return _btsCatalogExplorer.SendPorts.Cast<SendPort>().Where(sendPort => !sendPort.IsDynamic).ToList();
+                return BtsCatExplorer.SendPorts.Cast<SendPort>().Where(sendPort => !sendPort.IsDynamic).ToList();
             }
             catch (Exception e)
             {
@@ -52,15 +37,15 @@ namespace btsmon.Command.Group
         {
             try
             {
-                var sendPort = _btsCatalogExplorer.SendPorts[sendPortName];
+                var sendPort = BtsCatExplorer.SendPorts[sendPortName];
                 sendPort.Status = PortStatus.Started;
-                _btsCatalogExplorer.SaveChanges();
+                BtsCatExplorer.SaveChanges();
                 return true;
             }
             catch (Exception e)
             {
                 Logger.Error(e);
-                _btsCatalogExplorer.DiscardChanges();
+                BtsCatExplorer.DiscardChanges();
                 return false;
             }
         }
@@ -69,16 +54,16 @@ namespace btsmon.Command.Group
         {
             try
             {
-                var sp = _btsCatalogExplorer.SendPorts[sSendPortName];
+                var sp = BtsCatExplorer.SendPorts[sSendPortName];
                 sp.Status = PortStatus.Bound;
 
-                _btsCatalogExplorer.SaveChanges();
+                BtsCatExplorer.SaveChanges();
                 return true;
             }
             catch (Exception e)
             {
                 Logger.Error(e);
-                _btsCatalogExplorer.DiscardChanges();
+                BtsCatExplorer.DiscardChanges();
                 return false;
             }
         }

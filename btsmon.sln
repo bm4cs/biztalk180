@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "libs", "libs", "{0706E25C-F5E8-4A5D-9C1C-36DEAA7F1AB7}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{0706E25C-F5E8-4A5D-9C1C-36DEAA7F1AB7}"
 	ProjectSection(SolutionItems) = preProject
 		libs\Microsoft.BizTalk.ExplorerOM.dll = libs\Microsoft.BizTalk.ExplorerOM.dll
 		libs\README.txt = libs\README.txt

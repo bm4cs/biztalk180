@@ -18,5 +18,7 @@ namespace btsmon.Model
         public DateTime RepairedTime { get; set; }
 
         public bool Success { get; set; }
+
+        public string ErrorMessage { get; set; }
     }
 }

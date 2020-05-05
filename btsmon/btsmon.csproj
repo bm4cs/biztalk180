@@ -103,6 +103,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppSettings.cs" />
+    <Compile Include="Command\Group\BaseGroupCheck.cs" />
     <Compile Include="Command\Group\OrchestrationsCheck.cs" />
     <Compile Include="Command\Group\ReceiveLocationsCheck.cs" />
     <Compile Include="Command\Group\SendPortGroupsCheck.cs" />

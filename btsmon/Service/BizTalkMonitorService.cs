@@ -76,7 +76,7 @@ namespace btsmon
 
                         if (remediationList.Count > 0)
                         {
-                            Emailer.Send(remediationList);
+                            Emailer.Send(environment, remediationList);
                         }
                     }
                 }

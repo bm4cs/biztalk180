@@ -7,31 +7,18 @@ using Environment = btsmon.Model.Environment;
 
 namespace btsmon.Command.Group
 {
-    public class OrchestrationsCheck : ICommand
+    public class OrchestrationsCheck : BaseGroupCheck, ICommand
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private readonly BtsCatalogExplorer _btsCatalogExplorer;
         private readonly Environment _environment;
 
-        public OrchestrationsCheck(Environment environment)
-        {
-            _environment = environment;
-
-            var connectionString =
-                $"Integrated Security=SSPI;database={environment.MgmtDatabase};server={environment.GroupServer}" +
-                (!string.IsNullOrEmpty(environment.GroupInstance) ? $"instance={environment.GroupInstance}" : "");
-
-            Logger.Debug($"ReceiveLocationsCheck connection string '{connectionString}'");
-
-            _btsCatalogExplorer = new BtsCatalogExplorer
-            {
-                ConnectionString = connectionString
-            };
-        }
+        public OrchestrationsCheck(Environment environment) : base(environment)
+        { }
 
         public List<Remediation> Execute()
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException(); //TODO
         }
 
         private bool StartOrchestration(string sOrchestrationName)

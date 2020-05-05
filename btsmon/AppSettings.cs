@@ -34,6 +34,14 @@ namespace btsmon
 
         public static int PollingIntervalSeconds { get; set; }
 
+        public static int MailThrottleSeconds { get; set; }
+
+        public static string MailServer { get; set; }
+
+        public static string MailTo { get; set; }
+
+        public static string MailFrom { get; set; }
+
         #endregion
     }
 }

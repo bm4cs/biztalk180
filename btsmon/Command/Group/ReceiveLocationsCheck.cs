@@ -9,27 +9,12 @@ using ReceiveLocation = Microsoft.BizTalk.ExplorerOM.ReceiveLocation;
 
 namespace btsmon.Command.Group
 {
-    public class ReceiveLocationsCheck : ICommand
+    public class ReceiveLocationsCheck : BaseGroupCheck, ICommand
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        private readonly BtsCatalogExplorer _btsCatalogExplorer;
-        private readonly Environment _environment;
 
-        public ReceiveLocationsCheck(Environment environment)
-        {
-            _environment = environment;
-
-            var connectionString =
-                $"Integrated Security=SSPI;database={environment.MgmtDatabase};server={environment.GroupServer}" +
-                (!string.IsNullOrEmpty(environment.GroupInstance) ? $"instance={environment.GroupInstance}" : "");
-
-            Logger.Debug($"ReceiveLocationsCheck connection string '{connectionString}'");
-
-            _btsCatalogExplorer = new BtsCatalogExplorer
-            {
-                ConnectionString = connectionString
-            };
-        }
+        public ReceiveLocationsCheck(Environment environment) : base(environment)
+        { }
 
         public List<Remediation> Execute()
         {
@@ -39,7 +24,7 @@ namespace btsmon.Command.Group
 
                 foreach (var receiveLocation in ListReceiveLocations())
                 {
-                    var receiveLocationMonitoringConfig = _environment.ReceiveLocations?.FirstOrDefault(h => h.Name.ToLower() == receiveLocation.Name);
+                    var receiveLocationMonitoringConfig = Environment.ReceiveLocations?.FirstOrDefault(h => h.Name.ToLower() == receiveLocation.Name);
 
                     if (
                         (receiveLocationMonitoringConfig == null
@@ -49,7 +34,7 @@ namespace btsmon.Command.Group
                         try
                         {
                             receiveLocation.Enable = true;
-                            _btsCatalogExplorer.SaveChanges();
+                            BtsCatExplorer.SaveChanges();
 
                             remediationList.Add(new Remediation
                             {
@@ -63,7 +48,7 @@ namespace btsmon.Command.Group
                         }
                         catch (Exception receiveLocationStartException)
                         {
-                            _btsCatalogExplorer.DiscardChanges();
+                            BtsCatExplorer.DiscardChanges();
                             Logger.Error($"Failed to start receive location {receiveLocation.Name}");
                             Logger.Error(receiveLocationStartException);
 
@@ -84,7 +69,7 @@ namespace btsmon.Command.Group
                         try
                         {
                             receiveLocation.Enable = false;
-                            _btsCatalogExplorer.SaveChanges();
+                            BtsCatExplorer.SaveChanges();
 
                             remediationList.Add(new Remediation
                             {
@@ -98,7 +83,7 @@ namespace btsmon.Command.Group
                         }
                         catch (Exception receiveLocationStopException)
                         {
-                            _btsCatalogExplorer.DiscardChanges();
+                            BtsCatExplorer.DiscardChanges();
                             Logger.Error($"Failed to stop receive location {receiveLocation.Name}");
                             Logger.Error(receiveLocationStopException);
 
@@ -130,7 +115,7 @@ namespace btsmon.Command.Group
             try
             {
                 return (
-                        from ReceivePort receivePort in _btsCatalogExplorer.ReceivePorts
+                        from ReceivePort receivePort in BtsCatExplorer.ReceivePorts
                         from ReceiveLocation receiveLocation in receivePort.ReceiveLocations
                         select receiveLocation)
                     .ToList();
