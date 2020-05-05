@@ -4,8 +4,16 @@
       "GroupServer": "BIZTALKBOX",
       "GroupInstance": "",
       "MgmtDatabase": "BizTalkMgmtDb",
-      "HostInstances": [ { "Name": "BizTalkServerApplication" } ],
-      "Servers": [ { "Name": "hsofj234saleddq4gfvu0qk45g.bx.internal.cloudapp.net" } ],
+      "HostInstances": [
+        {
+          "Name": "BizTalkServerApplication"
+        },
+        {
+          "Name": "DeadHost",
+          "ExpectedState": "Down"
+		}
+      ],
+      "Servers": [ { "Name": "biztalkbox" } ],
       "ReceiveLocations": [
         {
           "Name": "BensTestReceiveLocationThatShouldBeStopped",

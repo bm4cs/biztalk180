@@ -24,7 +24,7 @@ namespace btsmon.Command.Group
 
                 foreach (var receiveLocation in ListReceiveLocations())
                 {
-                    var receiveLocationMonitoringConfig = Environment.ReceiveLocations?.FirstOrDefault(h => h.Name.ToLower() == receiveLocation.Name);
+                    var receiveLocationMonitoringConfig = Environment.ReceiveLocations?.FirstOrDefault(h => h.Name.ToLower() == receiveLocation.Name.ToLower());
 
                     if (
                         (receiveLocationMonitoringConfig == null
@@ -63,7 +63,8 @@ namespace btsmon.Command.Group
                             });
                         }
                     }
-                    else if (receiveLocationMonitoringConfig.ExpectedState == "Down" &&
+                    else if (receiveLocationMonitoringConfig != null &&
+                             receiveLocationMonitoringConfig.ExpectedState == "Down" &&
                              receiveLocation.Enable == true)
                     {
                         try

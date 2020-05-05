@@ -17,7 +17,97 @@ namespace btsmon.Command.Group
 
         public List<Remediation> Execute()
         {
-            throw new NotImplementedException();
+            try
+            {
+                var remediationList = new List<Remediation>();
+
+                foreach (var sendPort in ListSendPorts())
+                {
+                    var sendPortMonitoringConfig = Environment.SendPorts?.FirstOrDefault(p => p.Name.ToLower() == sendPort.Name.ToLower());
+
+                    if (
+                        (sendPortMonitoringConfig == null
+                         || sendPortMonitoringConfig.ExpectedState == "Up")
+                        && sendPort.Status == PortStatus.Stopped)
+                    {
+                        try
+                        {
+                            sendPort.Status = PortStatus.Started;
+                            BtsCatExplorer.SaveChanges();
+
+                            remediationList.Add(new Remediation
+                            {
+                                Name = sendPort.Name,
+                                Type = ArtifactType.SendPort,
+                                ExpectedState = "Up",
+                                ActualState = "Down",
+                                RepairedTime = DateTime.Now,
+                                Success = true
+                            });
+                        }
+                        catch (Exception sendPortStartException)
+                        {
+                            BtsCatExplorer.DiscardChanges();
+                            Logger.Error($"Failed to start send port {sendPort.Name}");
+                            Logger.Error(sendPortStartException);
+
+                            remediationList.Add(new Remediation
+                            {
+                                Name = sendPort.Name,
+                                Type = ArtifactType.SendPort,
+                                ExpectedState = "Up",
+                                ActualState = "Down",
+                                RepairedTime = DateTime.Now,
+                                Success = false
+                            });
+                        }
+                    }
+                    else if (sendPortMonitoringConfig != null &&
+                             sendPortMonitoringConfig.ExpectedState == "Down" &&
+                             sendPort.Status == PortStatus.Started)
+                    {
+                        try
+                        {
+                            sendPort.Status = PortStatus.Stopped;
+                            BtsCatExplorer.SaveChanges();
+
+                            remediationList.Add(new Remediation
+                            {
+                                Name = sendPort.Name,
+                                Type = ArtifactType.SendPort,
+                                ExpectedState = "Down",
+                                ActualState = "Up",
+                                RepairedTime = DateTime.Now,
+                                Success = true
+                            });
+                        }
+                        catch (Exception sendPortStopException)
+                        {
+                            BtsCatExplorer.DiscardChanges();
+                            Logger.Error($"Failed to stop send port {sendPort.Name}");
+                            Logger.Error(sendPortStopException);
+
+                            remediationList.Add(new Remediation
+                            {
+                                Name = sendPort.Name,
+                                Type = ArtifactType.SendPort,
+                                ExpectedState = "Down",
+                                ActualState = "Up",
+                                RepairedTime = DateTime.Now,
+                                Success = false
+                            });
+                        }
+                    }
+                }
+
+                return remediationList;
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+            }
+
+            return new List<Remediation>();
         }
 
         private List<SendPort> ListSendPorts()
@@ -30,41 +120,6 @@ namespace btsmon.Command.Group
             {
                 Logger.Error(e);
                 return null;
-            }
-        }
-
-        private bool StartSendPort(string sendPortName)
-        {
-            try
-            {
-                var sendPort = BtsCatExplorer.SendPorts[sendPortName];
-                sendPort.Status = PortStatus.Started;
-                BtsCatExplorer.SaveChanges();
-                return true;
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e);
-                BtsCatExplorer.DiscardChanges();
-                return false;
-            }
-        }
-
-        private bool UnenlistSendPort(string sSendPortName)
-        {
-            try
-            {
-                var sp = BtsCatExplorer.SendPorts[sSendPortName];
-                sp.Status = PortStatus.Bound;
-
-                BtsCatExplorer.SaveChanges();
-                return true;
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e);
-                BtsCatExplorer.DiscardChanges();
-                return false;
             }
         }
     }

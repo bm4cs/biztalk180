@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Mail;
+using System.Net.Mime;
 using System.Text;
 using btsmon.Model;
 using NLog;
@@ -35,6 +36,8 @@ namespace btsmon.Notification
                     plainTextBody);
 
                 mailMessage.BodyEncoding = Encoding.ASCII;
+                mailMessage.BodyTransferEncoding = TransferEncoding.SevenBit;
+                mailMessage.IsBodyHtml = false;
                 // var textView = AlternateView.CreateAlternateViewFromString(plainTextBody, null, MediaTypeNames.Text.Plain);
                 // mailMessage.AlternateViews.Add(textView);
 
@@ -56,11 +59,13 @@ namespace btsmon.Notification
         {
             var plainTextMessage = new StringBuilder();
 
-            plainTextMessage.Append($@"▄▄▄▄· ▄▄▄▄▄.▄▄ · • ▌ ▄ ·.        ▐ ▄ 
-▐█ ▀█▪•██  ▐█ ▀. ·██ ▐███▪▪     •█▌▐█
-▐█▀▀█▄ ▐█.▪▄▀▀▀█▄▐█ ▌▐▌▐█· ▄█▀▄ ▐█▐▐▌
-██▄▪▐█ ▐█▌·▐█▄▪▐███ ██▌▐█▌▐█▌.▐▌██▐█▌
-·▀▀▀▀  ▀▀▀  ▀▀▀▀ ▀▀  █▪▀▀▀ ▀█▄▀▪▀▀ █▪
+            plainTextMessage.Append($@"
+______ _____ ________  ________ _   _ 
+| ___ \_   _/  ___|  \/  |  _  | \ | |
+| |_/ / | | \ `--.| .  . | | | |  \| |
+| ___ \ | |  `--. \ |\/| | | | | . ` |
+| |_/ / | | /\__/ / |  | \ \_/ / |\  |
+\____/  \_/ \____/\_|  |_/\___/\_| \_/
 
 btsmon recently detected some problems with {affectedEnvironment.GroupServer}
 

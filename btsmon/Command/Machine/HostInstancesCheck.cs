@@ -44,7 +44,7 @@ namespace btsmon.Command.Machine
                         var hostName = inst["HostName"].ToString();
                         var runningServer = inst["RunningServer"].ToString();
 
-                        var hi = _environment.HostInstances?.FirstOrDefault(h => h.Name.ToLower() == hostName);
+                        var hi = _environment.HostInstances?.FirstOrDefault(h => h.Name.ToLower() == hostName.ToLower());
                         if (
                             (hi == null // no configuraton for the host instance - assume service wants to be enabled and up
                              || hi.ExpectedState == "Up")
@@ -81,7 +81,7 @@ namespace btsmon.Command.Machine
                                 });
                             }
                         }
-                        else if (hi.ExpectedState == "Down" && serviceState == "4")
+                        else if (hi != null && hi.ExpectedState == "Down" && serviceState == "4")
                         {
                             try
                             {
