@@ -4,14 +4,12 @@ using NLog;
 
 namespace btsmon.Command.Machine
 {
-    public class WebServerProcessesCheck : ICommand
+    public class WebServerProcessesCheck : BaseMachineCheck, ICommand
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        private readonly Environment _environment;
 
-        public WebServerProcessesCheck(Environment environment)
+        public WebServerProcessesCheck(Environment environment) : base(environment)
         {
-            _environment = environment;
         }
 
         public List<Remediation> Execute()

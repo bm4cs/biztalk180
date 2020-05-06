@@ -2,7 +2,7 @@
 using System.Collections;
 using System.ComponentModel;
 
-namespace btsmon
+namespace btsmon.Service
 {
     [RunInstaller(true)]
     public partial class Installer : System.Configuration.Install.Installer

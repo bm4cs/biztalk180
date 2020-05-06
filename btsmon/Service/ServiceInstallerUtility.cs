@@ -1,7 +1,7 @@
 ﻿using System.Configuration.Install;
 using System.Reflection;
 
-namespace btsmon
+namespace btsmon.Service
 {
     class ServiceInstallerUtility
     {

@@ -18,10 +18,6 @@ namespace btsmon.Controller
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private readonly Environment _environment;
 
-        private GroupController()
-        {
-        }
-
         public GroupController(Environment environment)
         {
             _environment = environment;

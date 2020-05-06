@@ -13,17 +13,17 @@ namespace btsmon.Notification
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        private static DateTime LastMessageSentTime;
+        private static DateTime _lastMessageSentTime;
 
         public static void Send(Environment affectedEnvironment, List<Remediation> remediationList)
         {
             try
             {
-                var emailThrottlePeriod = new TimeSpan(0, 0, AppSettings.MailThrottleSeconds);
+                var emailThrottlePeriod = new TimeSpan(0, AppSettings.MailThrottleMinutes, 0);
 
-                if (DateTime.Now - LastMessageSentTime < emailThrottlePeriod)
+                if (DateTime.Now - _lastMessageSentTime < emailThrottlePeriod)
                 {
-                    Logger.Info("Email notifications are being throttled");
+                    Logger.Warn($"Emails are being throttled to one email per {AppSettings.MailThrottleMinutes} minutes. Last email sent at {_lastMessageSentTime.ToLongTimeString()}");
                     return;
                 }
 
@@ -33,20 +33,17 @@ namespace btsmon.Notification
                     AppSettings.MailFrom,
                     AppSettings.MailTo,
                     "btsmon notification",
-                    plainTextBody);
-
-                mailMessage.BodyEncoding = Encoding.ASCII;
-                mailMessage.BodyTransferEncoding = TransferEncoding.SevenBit;
-                mailMessage.IsBodyHtml = false;
-                // var textView = AlternateView.CreateAlternateViewFromString(plainTextBody, null, MediaTypeNames.Text.Plain);
-                // mailMessage.AlternateViews.Add(textView);
+                    plainTextBody)
+                {
+                    BodyEncoding = Encoding.ASCII,
+                    BodyTransferEncoding = TransferEncoding.SevenBit,
+                    IsBodyHtml = false
+                };
 
                 var smtpClient = new SmtpClient(AppSettings.MailServer);
-                // smtpClient.EnableSsl = true;
-                // smtpClient.Credentials = new NetworkCredential(username, password);
                 smtpClient.Send(mailMessage);
 
-                LastMessageSentTime = DateTime.Now;
+                _lastMessageSentTime = DateTime.Now;
             }
             catch (Exception ex)
             {
@@ -55,7 +52,7 @@ namespace btsmon.Notification
             }
         }
 
-        private static string GetEmailBody(Environment affectedEnvironment, List<Remediation> remediationList)
+        private static string GetEmailBody(Environment affectedEnvironment, IEnumerable<Remediation> remediationList)
         {
             var plainTextMessage = new StringBuilder();
 

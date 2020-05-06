@@ -1,7 +1,7 @@
 ﻿using System.ServiceProcess;
 using NLog;
 
-namespace btsmon
+namespace btsmon.Service
 {
     public partial class Service : ServiceBase
     {

@@ -1,4 +1,4 @@
-﻿namespace btsmon
+﻿namespace btsmon.Service
 {
     partial class Service
     {

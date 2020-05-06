@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.ServiceProcess;
+using btsmon.Service;
 using NLog;
 using NLog.Fluent;
 
@@ -11,7 +12,7 @@ namespace btsmon
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        private static Service _service;
+        private static Service.Service _service;
 
         /// <summary>
         /// The main entry point for the application.
@@ -43,7 +44,7 @@ namespace btsmon
                 Environment.Exit(0);
             }
 
-            _service = new Service();
+            _service = new Service.Service();
             var servicesToRun = new ServiceBase[] { _service };
 
             // console mode
@@ -72,9 +73,6 @@ namespace btsmon
         }
 
 
-
-
-        #region Page Event Setup
         enum ConsoleCtrlHandlerCode : uint
         {
             // ReSharper disable InconsistentNaming
@@ -89,9 +87,7 @@ namespace btsmon
         [DllImport("kernel32.dll")]
         static extern bool SetConsoleCtrlHandler(ConsoleCtrlHandlerDelegate handlerProc, bool add);
         static ConsoleCtrlHandlerDelegate _consoleHandler;
-        #endregion
 
-        #region Page Events
         static bool ConsoleEventHandler(ConsoleCtrlHandlerCode eventCode)
         {
             // Handle close event here...
@@ -111,7 +107,6 @@ namespace btsmon
 
             return (false);
         }
-        #endregion
     }
 }
 

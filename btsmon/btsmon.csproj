@@ -108,6 +108,7 @@
     <Compile Include="Command\Group\ReceiveLocationsCheck.cs" />
     <Compile Include="Command\Group\SendPortGroupsCheck.cs" />
     <Compile Include="Command\Group\SendPortsCheck.cs" />
+    <Compile Include="Command\Machine\BaseMachineCheck.cs" />
     <Compile Include="Command\Machine\HostInstancesCheck.cs" />
     <Compile Include="Command\Machine\WebServerProcessesCheck.cs" />
     <Compile Include="Command\ICommand.cs" />

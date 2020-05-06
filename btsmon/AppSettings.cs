@@ -34,7 +34,7 @@ namespace btsmon
 
         public static int PollingIntervalSeconds { get; set; }
 
-        public static int MailThrottleSeconds { get; set; }
+        public static int MailThrottleMinutes { get; set; }
 
         public static string MailServer { get; set; }
 

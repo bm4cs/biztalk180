@@ -5,7 +5,7 @@ using NLog;
 namespace btsmon.Command.Group
 {
     /// <summary>
-    ///     Base initialisation logic a BizTalk Group related command.
+    ///     Base behaviour for a BizTalk Group related command.
     /// </summary>
     public class BaseGroupCheck
     {

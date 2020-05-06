@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Management;
 using System.Runtime.InteropServices;
@@ -10,14 +9,12 @@ using Environment = btsmon.Model.Environment;
 
 namespace btsmon.Command.Machine
 {
-    public class HostInstancesCheck : ICommand
+    public class HostInstancesCheck : BaseMachineCheck, ICommand
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        private readonly Environment _environment;
 
-        public HostInstancesCheck(Environment env)
+        public HostInstancesCheck(Environment environment) : base(environment)
         {
-            _environment = env;
         }
 
         public List<Remediation> Execute()
@@ -26,33 +23,35 @@ namespace btsmon.Command.Machine
             {
                 var remediationList = new List<Remediation>();
 
-                var enumOptions = new EnumerationOptions();
-                enumOptions.ReturnImmediately = false;
+                var enumOptions = new EnumerationOptions {ReturnImmediately = false};
 
-                foreach (var srvr in _environment.Servers)
+                foreach (var server in Environment.Servers)
                 {
                     //Search for all HostInstances of 'InProcess' type in the Biztalk namespace scope  
                     var searchObject = new ManagementObjectSearcher(
-                        $@"\\{srvr.Name}\root\MicrosoftBizTalkServer",
+                        $@"\\{server.Name}\root\MicrosoftBizTalkServer",
                         "Select * from MSBTS_HostInstance where HostType=1",
                         enumOptions);
 
-                    foreach (ManagementObject inst in searchObject.Get()) // Should be only one
+                    foreach (ManagementObject hostInstanceManagementObject in searchObject.Get()) // Should be only one
                     {
-                        var serviceState = inst["ServiceState"].ToString(); // 1 = stopped, 
-                        var isDisabled = inst["IsDisabled"].ToString(); // FALSE or TRUE
-                        var hostName = inst["HostName"].ToString();
-                        var runningServer = inst["RunningServer"].ToString();
+                        var serviceState = hostInstanceManagementObject["ServiceState"].ToString(); // 1 = stopped, 
+                        var isDisabled = hostInstanceManagementObject["IsDisabled"].ToString(); // FALSE or TRUE
+                        var hostName = hostInstanceManagementObject["HostName"].ToString();
+                        var runningServer = hostInstanceManagementObject["RunningServer"].ToString();
 
-                        var hi = _environment.HostInstances?.FirstOrDefault(h => h.Name.ToLower() == hostName.ToLower());
+                        var hostInstanceMonitoringConfig = Environment.HostInstances?.FirstOrDefault(h =>
+                            h.Name.ToLower() == hostName.ToLower());
+
+
                         if (
-                            (hi == null // no configuraton for the host instance - assume service wants to be enabled and up
-                             || hi.ExpectedState == "Up")
+                            (hostInstanceMonitoringConfig == null // no configuraton for the host instance - assume service wants to be enabled and up
+                             || hostInstanceMonitoringConfig.ExpectedState == "Up")
                             && serviceState == "1") // stopped
                         {
                             try
                             {
-                                inst.InvokeMethod("Start", null);
+                                hostInstanceManagementObject.InvokeMethod("Start", null);
                                 Logger.Debug($"HostInstance of Host: {hostName} and Server: {runningServer} was started successfully");
 
                                 remediationList.Add(new Remediation
@@ -81,12 +80,13 @@ namespace btsmon.Command.Machine
                                 });
                             }
                         }
-                        else if (hi != null && hi.ExpectedState == "Down" && serviceState == "4")
+                        else if (hostInstanceMonitoringConfig != null && hostInstanceMonitoringConfig.ExpectedState == "Down" && serviceState == "4")
                         {
                             try
                             {
-                                inst.InvokeMethod("Stop", null);
-                                Logger.Debug($"HostInstance of Host: {hostName} and Server: {runningServer} was stopped successfully");
+                                hostInstanceManagementObject.InvokeMethod("Stop", null);
+                                Logger.Debug(
+                                    $"HostInstance of Host: {hostName} and Server: {runningServer} was stopped successfully");
 
                                 remediationList.Add(new Remediation
                                 {
@@ -119,15 +119,15 @@ namespace btsmon.Command.Machine
                     return remediationList;
                 }
             }
-            catch (COMException ex)
+            catch (COMException comException)
             {
-                Logger.Error("COM Failure while starting HostInstances - " + ex.Message);
-                if (ex.Message.StartsWith("BizTalk Server cannot access SQL server"))
-                    throw; //QUESTION: why bubble this and risk killing the service?
+                Logger.Error("COM Failure while starting HostInstances - " + comException.Message);
+                Logger.Error(comException);
             }
-            catch (Exception excep)
+            catch (Exception exception)
             {
-                Logger.Error("Failure while starting HostInstances - " + excep.Message);
+                Logger.Error("Failure while starting HostInstances - " + exception.Message);
+                Logger.Error(exception);
             }
 
             return new List<Remediation>();
