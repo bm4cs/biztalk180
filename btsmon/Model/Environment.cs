@@ -6,6 +6,10 @@ namespace btsmon.Model
     [DataContract]
     public class Environment
     {
+
+        [DataMember]
+        public String Name { get; set; }
+
         [DataMember]
         public String GroupServer { get; set; }
 
@@ -22,9 +26,6 @@ namespace btsmon.Model
         public Server[] Servers { get; set; }
 
         [DataMember]
-        public BtsMonReceiveLocation[] ReceiveLocations { get; set; }
-
-        [DataMember]
-        public BtsMonSendPort[] SendPorts { get; set; }
+        public Application[] Applications { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using btsmon.Model;
 using Microsoft.BizTalk.ExplorerOM;
+using BTS = Microsoft.BizTalk.ExplorerOM;
 using NLog;
 using Environment = btsmon.Model.Environment;
 using ReceiveLocation = Microsoft.BizTalk.ExplorerOM.ReceiveLocation;
@@ -22,82 +23,57 @@ namespace btsmon.Command.Group
             {
                 var remediationList = new List<Remediation>();
 
-                foreach (var receiveLocation in ListReceiveLocations())
+                foreach (BTS.ReceiveLocation receiveLocation in ListReceiveLocations())
                 {
-                    var receiveLocationMonitoringConfig = Environment.ReceiveLocations?.FirstOrDefault(h => h.Name.ToLower() == receiveLocation.Name.ToLower());
+                    Model.ReceiveLocation config = Environment.Applications?.SelectMany(a => a.ReceiveLocations)?
+                        .FirstOrDefault(h => h.Name.ToLower() == receiveLocation.Name.ToLower());
 
-                    if (
-                        (receiveLocationMonitoringConfig == null
-                         || receiveLocationMonitoringConfig.ExpectedState == "Up")
-                        && receiveLocation.Enable == false)
+                    if (config?.ExpectedState == ExpectedEnableState.DontCare) continue;
+
+                    String expectedState;
+                    Boolean newStatus;
+                    String failText;
+                    String actualState = receiveLocation.Enable == true ? "Enabled"
+                        : "Disabled";
+
+                    if (config == null || config.ExpectedState == ExpectedEnableState.Enabled)
                     {
+                        expectedState = "Enabled";
+                        newStatus = true;
+                        failText = $"Failed to enable receive location {receiveLocation.Name}";
+                    }
+                    else
+                    {
+                        expectedState = "Disabled";
+                        newStatus = false;
+                        failText = $"Failed to disable receive location {receiveLocation.Name}";
+                    }
+
+                    if (expectedState != actualState)
+                    {
+                        Remediation remediation = new Remediation
+                        {
+                            Name = receiveLocation.Name,
+                            Type = ArtifactType.ReceiveLocation,
+                            ExpectedState = expectedState,
+                            ActualState = actualState,
+                            RepairedTime = DateTime.Now,
+                            Success = false
+                        };
+
                         try
                         {
-                            receiveLocation.Enable = true;
+                            receiveLocation.Enable = newStatus;
                             BtsCatExplorer.SaveChanges();
-
-                            remediationList.Add(new Remediation
-                            {
-                                Name = receiveLocation.Name,
-                                Type = ArtifactType.ReceiveLocation,
-                                ExpectedState = "Up",
-                                ActualState = "Down",
-                                RepairedTime = DateTime.Now,
-                                Success = true
-                            });
+                            remediation.Success = true;
                         }
                         catch (Exception receiveLocationStartException)
                         {
                             BtsCatExplorer.DiscardChanges();
-                            Logger.Error($"Failed to start receive location {receiveLocation.Name}");
+                            Logger.Error(failText);
                             Logger.Error(receiveLocationStartException);
-
-                            remediationList.Add(new Remediation
-                            {
-                                Name = receiveLocation.Name,
-                                Type = ArtifactType.ReceiveLocation,
-                                ExpectedState = "Up",
-                                ActualState = "Down",
-                                RepairedTime = DateTime.Now,
-                                Success = false
-                            });
                         }
-                    }
-                    else if (receiveLocationMonitoringConfig != null &&
-                             receiveLocationMonitoringConfig.ExpectedState == "Down" &&
-                             receiveLocation.Enable == true)
-                    {
-                        try
-                        {
-                            receiveLocation.Enable = false;
-                            BtsCatExplorer.SaveChanges();
-
-                            remediationList.Add(new Remediation
-                            {
-                                Name = receiveLocation.Name,
-                                Type = ArtifactType.ReceiveLocation,
-                                ExpectedState = "Down",
-                                ActualState = "Up",
-                                RepairedTime = DateTime.Now,
-                                Success = true
-                            });
-                        }
-                        catch (Exception receiveLocationStopException)
-                        {
-                            BtsCatExplorer.DiscardChanges();
-                            Logger.Error($"Failed to stop receive location {receiveLocation.Name}");
-                            Logger.Error(receiveLocationStopException);
-
-                            remediationList.Add(new Remediation
-                            {
-                                Name = receiveLocation.Name,
-                                Type = ArtifactType.ReceiveLocation,
-                                ExpectedState = "Down",
-                                ActualState = "Up",
-                                RepairedTime = DateTime.Now,
-                                Success = false
-                            });
-                        }
+                        remediationList.Add(remediation);
                     }
                 }
 

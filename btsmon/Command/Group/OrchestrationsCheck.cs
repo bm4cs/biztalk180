@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using btsmon.Model;
 using Microsoft.BizTalk.ExplorerOM;
+using BTS = Microsoft.BizTalk.ExplorerOM;
 using NLog;
 using Environment = btsmon.Model.Environment;
 
@@ -18,7 +20,95 @@ namespace btsmon.Command.Group
 
         public List<Remediation> Execute()
         {
-            throw new NotImplementedException(); //TODO
+            try
+            {
+                var remediationList = new List<Remediation>();
+
+                foreach (BTS.BtsOrchestration orchestration in ListOrchestrations())
+                {
+                    var config = Environment.Applications?.SelectMany(a => a.Orchestrations)
+                        .FirstOrDefault(p => p.Name.ToLower() == orchestration.FullName.Split(',')[0].ToLower());
+
+                    if (config?.ExpectedState == ExpectedInstanceState.DontCare) continue;
+
+                    String expectedState;
+                    OrchestrationStatus newStatus;
+                    String failText;
+                    String actualState = orchestration.Status == OrchestrationStatus.Enlisted ? "Stopped"
+                        : orchestration.Status == OrchestrationStatus.Unenlisted ? "Unenlisted"
+                        : "Started";
+
+                    if (config == null || config.ExpectedState == ExpectedInstanceState.Started)
+                    {
+                        expectedState = "Started";
+                        newStatus = OrchestrationStatus.Started;
+                        failText = $"Failed to start send port {orchestration.FullName}";
+                    }
+                    else
+                    {
+                        expectedState = "Unenlisted";
+                        newStatus = OrchestrationStatus.Unenlisted;
+                        failText = $"Failed to unenlist send port {orchestration.FullName}";
+                    }
+
+                    if (actualState != expectedState)
+                    {
+                        Remediation remediation = new Remediation
+                        {
+                            Name = orchestration.FullName,
+                            Type = ArtifactType.Orchestration,
+                            ExpectedState = expectedState,
+                            ActualState = actualState,
+                            RepairedTime = DateTime.Now,
+                            Success = false
+                        };
+
+                        try
+                        {
+                            orchestration.Status = newStatus;
+                            BtsCatExplorer.SaveChanges();
+                            remediation.Success = true;
+                        }
+                        catch (Exception OrchestrationStartException)
+                        {
+                            BtsCatExplorer.DiscardChanges();
+                            Logger.Error(failText);
+                            Logger.Error(OrchestrationStartException);
+                        }
+                        remediationList.Add(remediation);
+                    }
+                }
+
+                return remediationList;
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+            }
+
+            return new List<Remediation>();
+        }
+
+        private IEnumerable<BTS.BtsOrchestration> ListOrchestrations()
+        {
+            try
+            {
+                List<BTS.BtsOrchestration> orchestrations = new List<BTS.BtsOrchestration>();
+                foreach (BTS.Application app in BtsCatExplorer.Applications)
+                {
+                    foreach (BTS.BtsOrchestration orch in app.Orchestrations)
+                    {
+                        orchestrations.Add(orch);
+                    }
+                }
+
+                return orchestrations;
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+                return null;
+            }
         }
 
         private bool StartOrchestration(string sOrchestrationName)
@@ -47,6 +137,8 @@ namespace btsmon.Command.Group
             return false;
         }
 
+        //TODO: OH HELL NO!!!
+        // We don't want to automatically terminate orchestration instances that should be stopped. That could be really bad. Better off suspending instead. 
         private bool UnenlistOrchestration(string sOrchestrationName)
         {
             var btsAssemblyCollection = _btsCatalogExplorer.Assemblies;

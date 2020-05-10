@@ -1,29 +1,36 @@
 {
 	"Environments": [
     {
-      "GroupServer": "BIZTALKBOX",
-      "GroupInstance": "",
+      "Name": "Big Ben",
+      "GroupServer":"BIZTALKBOX",
+      "GroupInstance":"",
       "MgmtDatabase": "BizTalkMgmtDb",
       "HostInstances": [
-        {
-          "Name": "BizTalkServerApplication"
+        { 
+          "Name": "BizTalkServerApplication",
+          "ExpectedState": "Started" 
         },
-        {
+        { 
           "Name": "DeadHost",
-          "ExpectedState": "Down"
-		}
-      ],
-      "Servers": [ { "Name": "biztalkbox" } ],
-      "ReceiveLocations": [
-        {
-          "Name": "BensTestReceiveLocationThatShouldBeStopped",
-          "ExpectedState": "Down"
+          "ExpectedState": "Stopped" # other option - Disabled
         }
       ],
-      "SendPorts": [
+      "Servers": [ { "Name": "biztalkbox" } ],
+      "Applications": [
         {
-          "Name": "BensTestSendPortThatShouldBeStopped",
-          "ExpectedState": "Down"
+          "Name": "BizTalk.System"
+        },
+        {
+          "Name": "Rob",
+          "SendPorts": [
+            { "Name": "BizTalk.System", "ExpectedState": "Enabled" },
+          ],
+          "Orchestrations": [
+            { "Name": "BizTalk.System", "ExpectedState": "Enabled" },
+          ],
+          "ReceiveLocations": [
+            { "Name": "BizTalk.System", "ExpectedState": "Enabled" },
+          ]
         }
       ]
     }

@@ -114,10 +114,18 @@
     <Compile Include="Command\ICommand.cs" />
     <Compile Include="Controller\GroupController.cs" />
     <Compile Include="Controller\MachineController.cs" />
+    <Compile Include="Model\Application.cs" />
     <Compile Include="Model\ArtifactType.cs" />
     <Compile Include="Model\BtsMonReceiveLocation.cs" />
+    <Compile Include="Model\EnableState.cs" />
+    <Compile Include="Model\HostServer.cs" />
+    <Compile Include="Model\ExpectedInstanceState.cs" />
+    <Compile Include="Model\Orchestration.cs" />
+    <Compile Include="Model\ReceiveLocation.cs" />
     <Compile Include="Model\Remediation.cs" />
     <Compile Include="Model\BtsMonSendPort.cs" />
+    <Compile Include="Model\SendPort.cs" />
+    <Compile Include="Model\SendPortGroup.cs" />
     <Compile Include="Notification\Emailer.cs" />
     <Compile Include="Service\Installer.cs">
       <SubType>Component</SubType>

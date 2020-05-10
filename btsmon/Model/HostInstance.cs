@@ -9,6 +9,6 @@ namespace btsmon.Model
         [DataMember]
         public String Name { get; set; }
         [DataMember]
-        public string ExpectedState { get; internal set; }
+        public String ExpectedState { get; set; }
     }
 }

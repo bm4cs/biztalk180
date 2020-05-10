@@ -35,6 +35,10 @@ namespace btsmon.Controller
             var sendPortsRemediation = sendPortsCheck.Execute();
             remediationList.AddRange(sendPortsRemediation);
 
+            ICommand sendPortGroupsCheck = new SendPortGroupsCheck(_environment);
+            var sendPortGroupsRemediation = sendPortGroupsCheck.Execute();
+            remediationList.AddRange(sendPortGroupsRemediation);
+
             return remediationList;
         }
     }
