@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using btsmon.Controller;
 using btsmon.Model;
@@ -34,42 +35,49 @@ namespace btsmon.Service
 
         private void DoWork()
         {
-            var pollingInterval = AppSettings.PollingIntervalSeconds * 1000;
-
-            var configNoLoady = false;
-            var continueWork = true;
-
-            while (continueWork)
+            try
             {
-                Thread.Sleep(pollingInterval);
+                var pollingInterval = AppSettings.PollingIntervalSeconds * 1000;
 
-                var config = Configuration.LoadLocalFile("Configuration.json");
+                var configNoLoady = false;
+                var continueWork = true;
 
-                if (config == null && !configNoLoady)
+                while (continueWork)
                 {
-                    Logger.Error("Could not parse configuration file.");
-                    configNoLoady = true;
-                }
-                else if (config != null)
-                {
-                    configNoLoady = false;
-                    Logger.Debug("Configuration file parsed OK. Continuing to health check biztalk services");
+                    Thread.Sleep(pollingInterval);
 
-                    foreach (var environment in config.Environments)
+                    var config = Configuration.LoadLocalFile("Configuration.json");
+
+                    if (config == null && !configNoLoady)
                     {
-                        var remediationList = new List<Remediation>();
+                        Logger.Error("Could not parse configuration file.");
+                        configNoLoady = true;
+                    }
+                    else if (config != null)
+                    {
+                        configNoLoady = false;
+                        Logger.Debug("Configuration file parsed OK. Continuing to health check biztalk services");
 
-                        var machineController = new MachineController(environment);
-                        var machineRemediationList = machineController.Execute();
-                        remediationList.AddRange(machineRemediationList);
+                        foreach (var environment in config.Environments)
+                        {
+                            var remediationList = new List<Remediation>();
 
-                        var groupController = new GroupController(environment);
-                        var groupRemediationList = groupController.Execute();
-                        remediationList.AddRange(groupRemediationList);
+                            var machineController = new MachineController(environment);
+                            var machineRemediationList = machineController.Execute();
+                            remediationList.AddRange(machineRemediationList);
 
-                        if (remediationList.Count > 0) Emailer.Send(environment, remediationList);
+                            var groupController = new GroupController(environment);
+                            var groupRemediationList = groupController.Execute();
+                            remediationList.AddRange(groupRemediationList);
+
+                            if (remediationList.Count > 0) Emailer.Send(environment, remediationList);
+                        }
                     }
                 }
+            }
+            catch (Exception exception)
+            {
+                Logger.Error(exception);
             }
         }
     }

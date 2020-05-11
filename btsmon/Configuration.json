@@ -12,7 +12,7 @@
         },
         { 
           "Name": "DeadHost",
-          "ExpectedState": "Stopped" # other option - Disabled
+          "ExpectedState": "Stopped"
         }
       ],
       "Servers": [ { "Name": "biztalkbox" } ],
@@ -23,13 +23,13 @@
         {
           "Name": "Rob",
           "SendPorts": [
-            { "Name": "BizTalk.System", "ExpectedState": "Enabled" },
+            { "Name": "BizTalk.System", "ExpectedState": "Enabled" }
           ],
           "Orchestrations": [
-            { "Name": "BizTalk.System", "ExpectedState": "Enabled" },
+            { "Name": "BizTalk.System", "ExpectedState": "Enabled" }
           ],
           "ReceiveLocations": [
-            { "Name": "BizTalk.System", "ExpectedState": "Enabled" },
+            { "Name": "BizTalk.System", "ExpectedState": "Enabled" }
           ]
         }
       ]
